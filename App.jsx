@@ -7,10 +7,50 @@ function App() {
   const [essais, setEssais] = useState(0);
   const [niveau, setNiveau] = useState(null);
   const [nombreMystere, setNombreMystere] = useState(null);
+  const [essaisListe, setEssaisListe] = useState([]);
+
+function retourMenu(){
+  setNiveau(null);
+  setNombre("");
+  setEssais(0);
+  setNombreMystere(null);
+  setEssaisListe([]);
+}
+
+function affichageNombreDeviner() {
+  if (essaisListe.length === 0) return null;
+  return (
+    <div style={{ marginTop: "20px" }}>
+      <h3>Vos essais :</h3>
+      <ul style={{ listStyle: "none", padding: 0 }}>
+        {essaisListe.map((essai, index) => (
+          <li
+            key={index}
+            style={{
+              color: essai.estProche ? "#1a5f1a" : "#003366",
+              fontWeight: "bold",
+              fontSize: "20px",
+              margin: "5px 0"
+            }}
+          >
+            {essai.nombre} {essai.estProche ? "(proche)" : "(loin)"}
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
 
 function valider(){
-  setEssais(essais + 1);
+  if(nombreMystere === null){
+    setMessage("Aucun nombre généré, chosis d'abor un niveau");
+    return;
+  }
   const n = Number(nombre);
+  setEssais(essais + 1);   
+  const distance = Math.abs(n - nombreMystere);
+  const estProche = distance <= 10;
+  setEssaisListe([...essaisListe, { nombre: n, estProche }]);
 
   if(n > nombreMystere){
     setMessage("C'est moins");
@@ -21,16 +61,24 @@ function valider(){
   }
 }
 
-function choixNiveau(niv) {
-  setNiveau(niv);
+function genererNombreAleatoire(niveau){
   let max
-  if(niv === 1) max = 5000;
-  else if(niv === 2) max = 10000;
-  else if(niv === 3) max = 20000;
-  else if(niv === 4) max = 100000;
-  else setMessage("Choix invalide, réessayer");
-  
-  setNombreMystere(Math.floor(Math.random() * max) + 1)
+  if(niveau === 1) max = 5000;
+  else if(niveau === 2) max = 10000;
+  else if(niveau === 3) max = 20000;
+  else if(niveau === 4) max = 100000;
+  else {setMessage("Choix invalide, réessayer");
+  return;
+  }
+
+  setNombreMystere(Math.floor(Math.random()*max) +1);
+  setMessage("Le nombre a été généré, devine-le ");
+}
+
+function choisirNiveau(niveauChoisi){
+  setEssais(0);
+  setNiveau(niveauChoisi);
+  genererNombreAleatoire(niveauChoisi);
 }
 
 function pageNiveaux(){
@@ -54,10 +102,16 @@ if (niveau === null) return pageNiveaux();
         type="number"
         value={nombre}
         onChange={(e) => setNombre(e.target.value)}
-      />
+        onKeyDown={(e) => {
+        if (e.key === "Enter") {
+          valider();
+        }
+        }}></input> 
       <button onClick={valider}>Valider</button>
       <p>{message}</p>
       <p>Nombre d'essais : {essais}</p>
+      <button onClick={retourMenu}>Retour au menu</button>
+      {affichageNombreDeviner()}
     </div>
   );
 }
