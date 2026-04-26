@@ -21,7 +21,7 @@ function affichageNombreDeviner() {
   if (essaisListe.length === 0) return null;
   return (
     <div style={{ marginTop: "20px" }}>
-      <h3>Vos essais :</h3>
+      <h3>Your Attempts :</h3>
       <ul style={{ listStyle: "none", padding: 0 }}>
         {essaisListe.map((essai, index) => (
           <li
@@ -43,21 +43,27 @@ function affichageNombreDeviner() {
 
 function valider(){
   if(nombreMystere === null){
-    setMessage("Aucun nombre généré, chosis d'abor un niveau");
+    setMessage("No mystery number was created.\nTry agin.");
     return;
   }
   const n = Number(nombre);
+
+  if(n <= 0 || isNaN(n)){
+    setMessage("Invalid number");
+    return;
+  }
+
   setEssais(essais + 1);   
   const distance = Math.abs(n - nombreMystere);
   const estProche = distance <= 10;
   setEssaisListe([...essaisListe, { nombre: n, estProche }]);
 
   if(n > nombreMystere){
-    setMessage("C'est moins");
+    setMessage("Less");
   } else if(n < nombreMystere){
-    setMessage("C'est plus");
+    setMessage("More");
   }else{
-    setMessage("C'est exactement ce qu'on recherchait, le nombre " + nombreMystere);
+    setMessage("Exactly, number " + nombreMystere);
   }
 }
 
@@ -67,12 +73,12 @@ function genererNombreAleatoire(niveau){
   else if(niveau === 2) max = 10000;
   else if(niveau === 3) max = 20000;
   else if(niveau === 4) max = 100000;
-  else {setMessage("Choix invalide, réessayer");
+  else {setMessage("Invalid choice");
   return;
   }
 
   setNombreMystere(Math.floor(Math.random()*max) +1);
-  setMessage("Le nombre a été généré, devine-le ");
+  setMessage("The number was generated, guess it!");
 }
 
 function choisirNiveau(niveauChoisi){
@@ -84,10 +90,10 @@ function choisirNiveau(niveauChoisi){
 function pageNiveaux(){
   return(
   <div>
-    <h1>Chosissez un niveau</h1>
-    <button onClick={() => choisirNiveau(1)}>Facile</button>
-    <button onClick={() => choisirNiveau(2)}>Moyen</button>
-    <button onClick={() => choisirNiveau(3)}>Difficile</button>
+    <h1>Choose a level</h1>
+    <button onClick={() => choisirNiveau(1)}>Easy</button>
+    <button onClick={() => choisirNiveau(2)}>Intermediate</button>
+    <button onClick={() => choisirNiveau(3)}>Difficult</button>
     <button onClick={() => choisirNiveau(4)}>Impossible</button>
   </div>
   );
@@ -97,9 +103,10 @@ if (niveau === null) return pageNiveaux();
  
   return (
     <div>
-      <h1>Devine le nombre</h1>
+      <h1>Guess the number</h1>
       <input
         type="number"
+        min = "1"
         value={nombre}
         onChange={(e) => setNombre(e.target.value)}
         onKeyDown={(e) => {
@@ -107,10 +114,10 @@ if (niveau === null) return pageNiveaux();
           valider();
         }
         }}></input> 
-      <button onClick={valider}>Valider</button>
+      <button onClick={valider}>Confirm</button>
       <p>{message}</p>
-      <p>Nombre d'essais : {essais}</p>
-      <button onClick={retourMenu}>Retour au menu</button>
+      <p>Attempts : {essais}</p>
+      <button onClick={retourMenu}>Back to the menu</button>
       {affichageNombreDeviner()}
     </div>
   );
